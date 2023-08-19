@@ -49,14 +49,14 @@ public class NumericConverter {
         String num = numToConvert.toUpperCase();
         int sum = 0;
         
-        for (int i = num.length() - 1; i >= 0; i--) {
-            int digit = num.charAt(i);
+        for (int i = 0, length = num.length(); i < length; i++) {
+            int digit = num.charAt(length - i - 1);
             if (Character.isAlphabetic(digit)) {
-                sum += (10 + digit - 'A') * Math.pow(base, num.length() - i -1);
+                sum += (10 + digit - 'A') * Math.pow(base, i);
             }
             else if (Character.isDigit(digit)) {
                 digit = Integer.parseInt(String.valueOf(num.charAt(i)));
-                sum += digit * Math.pow(base, num.length() - i - 1);
+                sum += digit * Math.pow(base, i);
             }
         }
         return sum;
