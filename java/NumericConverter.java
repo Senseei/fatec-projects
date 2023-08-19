@@ -4,7 +4,7 @@ public class NumericConverter {
 
     public static void main(String... args) {
         int num = 101;
-        String hexadecimal = "FF";
+        String hexadecimal = "AF";
         System.out.println(convert(num, 2));
         System.out.println(convert(hexadecimal, 16));
     }
