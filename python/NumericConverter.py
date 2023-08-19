@@ -1,5 +1,6 @@
 def main():
     print(convert(101, 2))
+    print(convert("FF", 16))
 
 def convert(numberToConvert, base):
     num = str.upper(str(numberToConvert))
