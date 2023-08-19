@@ -28,6 +28,7 @@ int convert(int numToConvert, int base) {
 int convertFromString(char numToConvert[], int base) {
     char num[strlen(numToConvert) + 1];
     strcpy(num, numToConvert);
+    toUppercase(num);
 
     int sum = 0;
 
