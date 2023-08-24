@@ -15,28 +15,34 @@ public class NumericConverter {
      *   If the base is higher than 10, the result will not be right
      */
     public static long convert(long numToConvert, int base) {
-        String num = Long.toString(numToConvert);
-        long sum = 0;
-        
-        for (int i = num.length() - 1; i >= 0; i--) {
-            int digit = Integer.parseInt(String.valueOf(num.charAt(i)));
-            sum += digit * Math.pow(base, num.length() - i - 1);
-        }
-        return sum;
+        return convertNumbTypeArgument(numToConvert, base);
     }
 
     // The same applies to this, but with an int value as paramater
     public static int convert(int numToConvert, int base) {
-        String num = Long.toString(numToConvert);
-        int sum = 0;
-        
-        for (int i = num.length() - 1; i >= 0; i--) {
-            int digit = Integer.parseInt(String.valueOf(num.charAt(i)));
-            sum += digit * Math.pow(base, num.length() - i - 1);
-        }
-        return sum;
+        return (int)convertNumbTypeArgument(numToConvert, base);
+    }
+    
+    private static <T extends Number> long convertNumbTypeArgument(T numToConvert, int base) {
+      String num = convertToString(numToConvert);
+      long sum = 0;
+      for (int i = num.length() - 1; i >= 0; i--) {
+          int digit = Integer.parseInt(String.valueOf(num.charAt(i)));
+          sum += digit * Math.pow(base, num.length() - i - (double)1);
+      }
+      return sum;
     }
 
+    private static <T extends Number> String convertToString(T numToConvert) {
+      String num = "";
+      if (numToConvert instanceof Long) {
+        num = Long.toString((long)numToConvert);      
+      } else {
+        num = Integer.toString((int)numToConvert);       
+      }
+      return num;
+    }    
+    
     /*
      * Handles conversion with a String number parameter, also supports
      * alphanumeric values, hexadecimal, for example.
