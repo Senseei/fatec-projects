@@ -1,11 +1,12 @@
-# Numeric Converter System
+# Fatec Projects
+Hey there, this repository is where we store some of the projects
+We are going to make until the end of the course.
+It may vary from simple code to complex algorithms
 
-Simple algorithm that converts a value of a specific numeric system, made in java
+## Are these projects part of our college studies plan?
+More or less, the ideas may come from our classes, but it is not
+necessarily an official work in group or something similar.
+It is more my initiative and other collegue's as well
 
-## Examples
-1. Converting from binary..
-    - convert(1101, 2) -> 13
-    - convert(10101, 2) -> 21
-2. Converting from hexadecimal
-    - convert("AF", 16) -> 31
-    - convert("FF", 16) -> 255
+## Who can colaborate with it?
+Anyone who want to give a nice idea of code
