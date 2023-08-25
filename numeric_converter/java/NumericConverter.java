@@ -6,9 +6,9 @@ public class NumericConverter {
     // Numeric Converter, be sure to insert the right numeric base to precise conversion!
 
     public static void main(String... args) {
-        int num = 101;
+        int binary = 101;
         String hexadecimal = "AF";
-        System.out.println(convert(num, 2));
+        System.out.println(convert(binary, 2));
         System.out.println(convert(hexadecimal, 16));
     }
 
