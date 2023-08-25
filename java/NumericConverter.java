@@ -1,5 +1,8 @@
 public class NumericConverter {
 
+    // This ensure this will not be instatiated
+    private NumericConverter() {}
+
     // Numeric Converter, be sure to insert the right numeric base to precise conversion!
 
     public static void main(String... args) {
@@ -24,24 +27,23 @@ public class NumericConverter {
     }
     
     private static <T extends Number> long convertNumbTypeArgument(T numToConvert, int base) {
-      String num = convertToString(numToConvert);
-      long sum = 0;
-      for (int i = num.length() - 1; i >= 0; i--) {
-          int digit = Integer.parseInt(String.valueOf(num.charAt(i)));
+        String num = convertToString(numToConvert);
+        long sum = 0;
+        for (int i = num.length() - 1; i >= 0; i--) {
+            int digit = Integer.parseInt(String.valueOf(num.charAt(i)));
           sum += digit * Math.pow(base, num.length() - i - (double)1);
-      }
-      return sum;
+        }
+        return sum;
     }
 
     private static <T extends Number> String convertToString(T numToConvert) {
-      String num = "";
-      if (numToConvert instanceof Long) {
-        num = Long.toString((long)numToConvert);      
-      } else {
-        num = Integer.toString((int)numToConvert);       
-      }
-      return num;
-    }    
+        String num = "";
+        if (numToConvert instanceof Long)
+            num = Long.toString((long)numToConvert);
+        else
+            num = Integer.toString((int)numToConvert);
+        return num;
+    }
     
     /*
      * Handles conversion with a String number parameter, also supports
