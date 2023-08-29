@@ -1,5 +1,8 @@
 public class NumericConverter {
 
+    public static final int MAX_SUPPORTED_BASE = 36;
+    public static final int OCTAL_BASE = 8;
+
     // This ensure this will not be instatiated
     private NumericConverter() {}
 
@@ -7,9 +10,15 @@ public class NumericConverter {
 
     public static void main(String... args) {
         int binary = 101;
-        String hexadecimal = "AF";
-        System.out.println(convert(binary, 2));
-        System.out.println(convert(hexadecimal, 16));
+        String hexadecimal = "57";
+
+        System.out.println("Decimal to binary: " + Decimal.toBinary(75));
+
+        System.out.println("Binary to decimal: " + toDecimal(binary, Binary.BASE));
+        System.out.println("Binary to hexadecimal: " + Binary.toHexadecimal("100101"));
+
+        System.out.println("Hexadecimal to decimal: " + toDecimal(hexadecimal, Hexadecimal.BASE));
+        System.out.println("Hexadecimal to binary: " + Hexadecimal.toBinary(hexadecimal));
     }
 
     /*
@@ -17,40 +26,20 @@ public class NumericConverter {
      *   But only supports until decimal base
      *   If the base is higher than 10, the result will not be right
      */
-    public static long convert(long numToConvert, int base) {
-        return convertNumbTypeArgument(numToConvert, base);
+    public static long toDecimal(long numToConvert, int base) {
+        return toDecimal(Long.toString(numToConvert), base);
     }
 
     // The same applies to this, but with an int value as paramater
-    public static int convert(int numToConvert, int base) {
-        return (int)convertNumbTypeArgument(numToConvert, base);
-    }
-    
-    private static <T extends Number> long convertNumbTypeArgument(T numToConvert, int base) {
-        String num = convertToString(numToConvert);
-        long sum = 0;
-        for (int i = num.length() - 1; i >= 0; i--) {
-            int digit = Integer.parseInt(String.valueOf(num.charAt(i)));
-          sum += digit * Math.pow(base, num.length() - i - (double)1);
-        }
-        return sum;
+    public static int toDecimal(int numToConvert, int base) {
+        return (int) toDecimal(Integer.toString(numToConvert), base);
     }
 
-    private static <T extends Number> String convertToString(T numToConvert) {
-        String num = "";
-        if (numToConvert instanceof Long)
-            num = Long.toString((long)numToConvert);
-        else
-            num = Integer.toString((int)numToConvert);
-        return num;
-    }
     
-    /*
-     * Handles conversion with a String number parameter, also supports
-     * alphanumeric values, hexadecimal, for example.
-     * Supports until base 36, if base is higher than 36 it will not work as expected
-     */
-    public static long convert(String numToConvert, int base) {
+    // Handles every single numeric system with letters and numbers
+    public static long toDecimal(String numToConvert, int base) {
+        validateBase(base);
+
         if (numToConvert == null)
             throw new IllegalArgumentException("num argument cannot be null");
 
@@ -58,15 +47,22 @@ public class NumericConverter {
         int sum = 0;
         
         for (int i = 0, length = num.length(); i < length; i++) {
-            int digit = num.charAt(length - i - 1);
+            int position = length - i - 1;
+            int digit = num.charAt(position);
+
             if (Character.isAlphabetic(digit)) {
                 sum += (10 + digit - 'A') * Math.pow(base, i);
             }
             else if (Character.isDigit(digit)) {
-                digit = Integer.parseInt(String.valueOf(num.charAt(i)));
+                digit = Integer.parseInt(String.valueOf(num.charAt(position)));
                 sum += digit * Math.pow(base, i);
             }
         }
         return sum;
+    }
+
+    public static void validateBase(int base) {
+        if (base < 2 || base > 36)
+            throw new IllegalArgumentException("Only bases between 2 and 36 are supported");
     }
 }
