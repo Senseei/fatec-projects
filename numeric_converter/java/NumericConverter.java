@@ -1,7 +1,6 @@
 public class NumericConverter {
 
     public static final int MAX_SUPPORTED_BASE = 36;
-    public static final int OCTAL_BASE = 8;
 
     // This ensure this will not be instatiated
     private NumericConverter() {}
@@ -9,16 +8,31 @@ public class NumericConverter {
     // Numeric Converter, be sure to insert the right numeric base to precise conversion!
 
     public static void main(String... args) {
-        int binary = 101;
+        int decimal = 75;
+        int binary = 101101;
         String hexadecimal = "57";
+        int octal = 45;
 
-        System.out.println("Decimal to binary: " + Decimal.toBinary(75));
+        System.out.println("\nDecimal number: " + decimal);
+        System.out.println("Decimal to binary: " + Decimal.toBinary(decimal));
+        System.out.println("Decimal to octal: " + Decimal.toOctal(decimal));
+        System.out.println("Decimal to hexadecimal: " + Decimal.toHexadecimal(decimal));
 
-        System.out.println("Binary to decimal: " + toDecimal(binary, Binary.BASE));
-        System.out.println("Binary to hexadecimal: " + Binary.toHexadecimal("100101"));
+        System.out.println("\nBinary number: " + binary);
+        System.out.println("Binary to decimal: " + Binary.toDecimal(binary));
+        System.out.println("Binary to hexadecimal: " + Binary.toHexadecimal(binary));
+        System.out.println("Binary to octal: " + Binary.toOctal(binary));
 
-        System.out.println("Hexadecimal to decimal: " + toDecimal(hexadecimal, Hexadecimal.BASE));
+        System.out.println("\nHexadecimal number: " + hexadecimal);
+        System.out.println("Hexadecimal to decimal: " + Hexadecimal.toDecimal(hexadecimal));
         System.out.println("Hexadecimal to binary: " + Hexadecimal.toBinary(hexadecimal));
+        System.out.println("Hexadecimal to octal: " + Hexadecimal.toOctal(hexadecimal));
+
+        System.out.println("\nOctal number: " + octal);
+        System.out.println("Octal to decimal: " + Octal.toDecimal(octal));
+        System.out.println("Octal to binary:" + Octal.toBinary(octal));
+        System.out.println("Octal to hexadecimal: " + Octal.toHexadecimal(octal));
+        System.out.println();
     }
 
     /*
