@@ -31,22 +31,22 @@ public class Binary {
 
     // Converts binary to another numerical system based on the numerical system size
     private static String convert(String binary, int size) {
-        String hexadecimal = "";
+        String result = "";
         
         binary = addZerosToLeft(binary, size);
 
         for (int i = 0, length = binary.length(); i < length; i += size) {
             int decimal = (int) NumericConverter.toDecimal(Long.parseLong(binary.substring(i, i + size)), BASE);
-            char hexChar;
+            char newChar;
             if (decimal >= 10)
-                hexChar = (char) (decimal - 10 + 'A');
+                newChar = (char) (decimal - 10 + 'A');
             else
-                hexChar = (char) (decimal + '0');
+                newChar = (char) (decimal + '0');
 
-            hexadecimal += hexChar;
+            result += newChar;
         }
 
-        return hexadecimal;
+        return result;
     }
 
     // Converts binary to decimal
