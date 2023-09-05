@@ -23,49 +23,41 @@ public class BinaryCalculator {
         if (b1 == null || b2 == null)
             throw new IllegalArgumentException("Method's parameter cannot be null");
 
-        String sum = "";
+        int maxLength = Math.max(b1.length(), b2.length());
 
-        if (b1.length() >= b2.length())
-            b2 = matchSizes(b2, b1);
-        else
-            b1 = matchSizes(b1, b2);
+        StringBuilder sum = new StringBuilder(maxLength + 1);
 
+        b1 = padWithZeros(b1, maxLength);
+        b2 = padWithZeros(b2, maxLength);
 
         int length = b1.length() >= b2.length() ? b1.length() : b2.length();
-        int aux = 0;
+        int carry = 0;
         for (int i = length - 1; i >= 0; i--) {
             char char1 = b1.charAt(i), char2 = b2.charAt(i);
 
             int n1 = Character.getNumericValue(char1), n2 = Character.getNumericValue(char2);
-            int expression = aux + n1 + n2;
-            if (expression == 0) {
-                sum = "0".concat(sum);
-                aux = 0;
-            }
-            else if (expression == 1) {
-                sum = "1".concat(sum);
-                aux = 0;
-            }
-            else if (expression == 2) {
-                sum = "0".concat(sum);
-                aux = 1;
-            }
-            else if (expression == 3) {
-                sum = "1".concat(sum);
-                aux = 1;
-            }
+            int expression = carry + n1 + n2;
+
+            carry = expression / 2;
+            sum.insert(0, expression % 2);
         }
 
-        if (aux > 0)
-            sum = "1".concat(sum);
+        if (carry > 0)
+            sum.insert(0, carry);
 
-        return sum;
+        return sum.toString();
     }
 
-    public static String matchSizes(String shorter, String longer) {
-        while (shorter.length() != longer.length()) {
-            shorter = "0".concat(shorter);
+    private static String padWithZeros(String str, int length) {
+        int padding = length - str.length();
+        if (padding > 0) {
+            StringBuilder paddedStr = new StringBuilder(length);
+            for (int i = 0; i < padding; i++) {
+                paddedStr.append('0');
+            }
+            paddedStr.append(str);
+            return paddedStr.toString();
         }
-        return shorter;
+        return str;
     }
 }
