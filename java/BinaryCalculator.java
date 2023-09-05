@@ -9,14 +9,6 @@ public class BinaryCalculator {
         System.out.println(sum("0111", "0101"));
         System.out.println(sum("1100", "1010"));
     }
-
-    public static String sum(int b1, int b2) {
-        return sum(Integer.toString(b1), Integer.toString(b2));
-    }
-
-    public static String sum(long b1, long b2) {
-        return sum(Long.toString(b1), Long.toString(b2));
-    }
     
     public static String sum(String b1, String b2) {
 
