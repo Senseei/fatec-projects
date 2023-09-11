@@ -17,25 +17,25 @@ public class NumericConverter {
 
         Consumer<String> consumer = x -> System.out.println(x);
 
-        System.out.println("\nBinary... ");
+        System.out.println("\nBinary -> " + binary + "...");
         print(consumer, "To octal: " + Binary.toOctal(binary));
         print(consumer, "To decimal: " + Binary.toDecimal(binary));
         print(consumer, "To hexadecimal: " + Binary.toHexadecimal(binary));
         System.out.println();
 
-        System.out.println("Octal... ");
+        System.out.println("Octal -> " + octal + "...");
         print(consumer, "To binary: " + Octal.toBinary(octal));
         print(consumer, "To Decimal: " + Octal.toDecimal(octal));
         print(consumer, "To hexadecimal: " + Octal.toHexadecimal(octal));
         System.out.println();
 
-        System.out.println("Decimal... ");
+        System.out.println("Decimal -> " + decimal + "...");
         print(consumer, "To binary: " + Decimal.toBinary(decimal));
         print(consumer, "To Octal: " + Decimal.toOctal(decimal));
         print(consumer, "To Hexadecimal: " + Decimal.toHexadecimal(decimal));
         System.out.println();
 
-        System.out.println("Hexadecimal... ");
+        System.out.println("Hexadecimal -> " + hexadecimal + "...");
         print(consumer, "To binary: " + Hexadecimal.toBinary(hexadecimal));
         print(consumer, "To octal: " + Hexadecimal.toOctal(hexadecimal));
         print(consumer, "To decimal: " + Hexadecimal.toDecimal(hexadecimal));
