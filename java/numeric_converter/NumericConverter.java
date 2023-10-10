@@ -5,9 +5,11 @@ import java.util.function.Consumer;
 public class NumericConverter {
 
     // This ensure this will not be instatiated
-    private NumericConverter() {}
+    private NumericConverter() {
+    }
 
-    // Numeric Converter, be sure to insert the right numeric base to precise conversion!
+    // Numeric Converter, be sure to insert the right numeric base to precise
+    // conversion!
 
     public static void main(String... args) {
         String binary = "1010";
@@ -19,7 +21,7 @@ public class NumericConverter {
 
         System.out.println("\nBinary -> " + binary + "...");
         print(consumer, "To octal: " + Binary.toOctal(binary));
-        print(consumer, "To decimal: " + Binary.toDecimal(binary));
+        print(consumer, "To decimal: " + Binary.signedToDecimal(binary));
         print(consumer, "To hexadecimal: " + Binary.toHexadecimal(binary));
         System.out.println();
 
@@ -41,20 +43,19 @@ public class NumericConverter {
         print(consumer, "To decimal: " + Hexadecimal.toDecimal(hexadecimal));
         System.out.println();
     }
-    
+
     public static long toDecimal(String numToConvert, int base) {
         if (numToConvert == null)
             throw new IllegalArgumentException("num argument cannot be null");
 
         String num = numToConvert.toUpperCase();
         int sum = 0;
-        
+
         for (int i = 0, length = num.length(); i < length; i++) {
             int digit = num.charAt(length - i - 1);
             if (Character.isAlphabetic(digit)) {
                 sum += (10 + digit - 'A') * Math.pow(base, i);
-            }
-            else if (Character.isDigit(digit)) {
+            } else if (Character.isDigit(digit)) {
                 digit = Character.getNumericValue(digit);
                 sum += digit * Math.pow(base, i);
             }
