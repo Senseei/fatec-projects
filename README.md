@@ -15,11 +15,11 @@ This project implements the Huffman Algorithm, a popular method for lossless dat
    - Character Frequencies: (a->6), (b->3), (c->1)
    - Huffman Tree:
      ```
-                (a->6)
+           (a->6)
         ( ->10)
-                (b->3)
-            ( ->4)
-                (c->1)
+              (b->3)
+           ( ->4)
+              (c->1)
      ```
 
 ## How to Use
