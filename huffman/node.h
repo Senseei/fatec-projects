@@ -3,7 +3,7 @@
 
 typedef struct node {
     char character;
-    int frequence;
+    int frequency;
     struct node *left;
     struct node *right;
 }

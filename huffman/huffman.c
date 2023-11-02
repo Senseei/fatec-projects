@@ -5,8 +5,10 @@
 #include "node.h"
 #include "queue.h"
 
-bool build_tree(FILE *arq);
-void free_frequences(node *arr[], int length);
+node *build_tree(FILE *arq);
+void serialize_tree(node *root);
+node *deserialize_tree(const char *serial, int* index);
+void free_frequencies(node *arr[], int length);
 
 int main(int argc, char* argv[]) {
     if (argc != 2) {
@@ -29,13 +31,24 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    build_tree(arq);
+    node *tree = build_tree(arq);
+    print_tree(tree, 0);
+    serialize_tree(tree);
+    printf("\n");
 
+    const char *serial = "I10I4Lc1Lb3La6";
+    printf("deserialized:\n");
+    int index = 0;
+    node *dtree = deserialize_tree(serial, &index);
+    print_tree(dtree, 0);
+
+    free_tree(tree);
+    free_tree(dtree);
     fclose(arq);
 }
 
-bool build_tree(FILE *arq) {
-    node *frequences[256] = {NULL};
+node *build_tree(FILE *arq) {
+    node *frequencies[256] = {NULL};
     int total_nodes = 0;
     char buffer[1];
 
@@ -43,37 +56,36 @@ bool build_tree(FILE *arq) {
         char character = buffer[0];
         int index = (int) character;
 
-        if (frequences[index] == NULL) { 
+        if (frequencies[index] == NULL) { 
             node *n = new_node(character);
 
             if (n == NULL) {
-                free_frequences(frequences, 256);
+                free_frequencies(frequencies, 256);
                 return false;
             }
 
-            frequences[index] = n;
+            frequencies[index] = n;
             total_nodes++;
         }
         else
-            frequences[index]->frequence++;
+            frequencies[index]->frequency++;
     }
 
     queue *q = new_queue();
 
     for (int i = 0, next = 0; i < 256; i++) {
-        if (frequences[i] != NULL) {
-            enqueue(q, frequences[i]);
+        if (frequencies[i] != NULL) {
+            enqueue(q, frequencies[i]);
         }
     }
     sort_queue(q);
 
-    printf("-------------\n");
     while (q->size != 1) {
         node *n1 = dequeue(q);
         node *n2 = dequeue(q);
 
         node *n = new_node(0);
-        n->frequence = n1->frequence + n2->frequence;
+        n->frequency = n1->frequency + n2->frequency;
 
         n->left = n1;
         n->right = n2;
@@ -81,13 +93,58 @@ bool build_tree(FILE *arq) {
         enqueue(q, n);
         sort_queue(q);
     }
-    print_queue(q);
-    
+
+    node *tree = dequeue(q);
     free_queue(q);
-    return true;
+    
+    return tree;
 }
 
-void free_frequences(node *arr[], int length) {
+void serialize_tree(node *root) {
+    if (root->left == NULL && root->right == NULL) {
+        printf("L");
+        printf("%c%d", root->character, root->frequency);
+        return;
+    }
+    printf("I");
+    printf("%d", root->frequency);
+    serialize_tree(root->left);
+    serialize_tree(root->right);
+}
+
+node *deserialize_tree(const char* serial, int* index) {
+    if (serial[*index] == '\0')
+        return NULL;
+
+    node *n = new_node(0);
+    if (n == NULL) {
+        printf("error allocating memory");
+        return NULL;
+    }
+
+    if (serial[*index] == 'I') {
+        (*index)++;
+        sscanf(&serial[*index], "%d", &n->frequency);
+        while(serial[*index] != 'L' && serial[*index] != 'I') {
+            (*index)++;
+        }
+        n->left = deserialize_tree(serial, index);
+        n->right = deserialize_tree(serial, index);
+    } else if (serial[*index] == 'L') {
+        (*index)++;
+        n->character = serial[*index];
+        (*index)++;
+        sscanf(&serial[*index], "%d", &n->frequency);
+        while(serial[*index] != 'L' && serial[*index] != 'I' && serial[*index] != '\0') {
+            (*index)++;
+        }
+        n->left = NULL;
+        n->right = NULL;
+    }
+    return n;
+}
+
+void free_frequencies(node *arr[], int length) {
     for (int i = 0; i < length; i++)
         free(arr[i]);
 }

@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <strings.h>
+#include <string.h>
 #include "node.h"
 
 node *new_node(char character) {
@@ -10,7 +12,7 @@ node *new_node(char character) {
     }
 
     n->character = character;
-    n->frequence = 1;
+    n->frequency = 1;
     n->left = NULL;
     n->right = NULL;
 
@@ -24,7 +26,7 @@ void print_tree(node *root, int level) {
 
     for (int i = 0; i < level; i++)
         printf("  ");
-    printf("(%c->%d)\n", root->character, root->frequence);
+    printf("(%c->%d)\n", root->character, root->frequency);
 
     print_tree(root->left, level + 1);
 }

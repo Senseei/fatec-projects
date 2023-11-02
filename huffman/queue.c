@@ -64,7 +64,7 @@ void sort_queue(queue *q) {
     do {
         changes = 0;
         for (queueNode *qn = q->front; qn->next != NULL; qn = qn->next) {
-            if (qn->n->frequence > qn->next->n->frequence) {
+            if (qn->n->frequency > qn->next->n->frequency) {
                 node *temp = qn->n;
                 qn->n = qn->next->n;
                 qn->next->n = temp;
