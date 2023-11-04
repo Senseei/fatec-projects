@@ -1,14 +1,12 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include "huffman.h"
 #include "node.h"
 #include "queue.h"
 
-node *build_tree(FILE *arq);
-void serialize_tree(node *root);
-node *deserialize_tree(const char *serial, int* index);
-void free_frequencies(node *arr[], int length);
 
 int main(int argc, char* argv[]) {
     if (argc != 2) {
@@ -31,20 +29,72 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    node *tree = build_tree(arq);
-    print_tree(tree, 0);
-    serialize_tree(tree);
-    printf("\n");
+    compress(arq, "output.bin");
 
-    const char *serial = "I10I4Lc1Lb3La6";
-    printf("deserialized:\n");
-    int index = 0;
-    node *dtree = deserialize_tree(serial, &index);
-    print_tree(dtree, 0);
+    FILE *compressed = fopen("output.bin", "r");
+    if (compressed == NULL) {
+        printf("error opening the file\n");
+        return -1;
+    }
 
-    free_tree(tree);
-    free_tree(dtree);
+    decompress(compressed, "decompressed");
+
+    fclose(compressed);
     fclose(arq);
+}
+
+void compress(FILE *arq, char *output) {
+    FILE *foutput = fopen(output, "wb");
+
+    if (foutput == NULL) {
+        printf("error opening the output file");
+        return;
+    }
+        
+    node *huffman_tree = build_tree(arq);
+    char *table[256] = {NULL};
+
+    load_table(table, huffman_tree, "");
+    serialize_tree(huffman_tree, foutput);
+
+    char buffer[1];
+    while (fread(buffer, sizeof(char), 1, arq) == 1) {
+        fprintf(foutput, table[buffer[0]]);
+    }
+
+    for (int i = 0; i < 256; i++)
+        free(table[i]);
+
+    free_tree(huffman_tree);
+    fclose(foutput);
+}
+
+void decompress(FILE *arq, char* output) {
+    node *tree = deserialize_tree(arq);
+
+    char file_name[100];
+    if (snprintf(file_name, sizeof(file_name), "%s.txt", output) >= sizeof(file_name)) {
+        printf("File name is too long.\n");
+        return;
+    }
+
+    FILE *decompressed = fopen(file_name, "w");
+
+    char buffer[1];
+    node *temp = tree;
+    while(fread(buffer, sizeof(char), 1, arq) == 1) {
+        if (buffer[0] == '0')
+            temp = temp->left;
+        else if (buffer[0] == '1')
+            temp = temp->right;
+
+        if (temp->left == NULL && temp->right == NULL) {
+            fprintf(decompressed, "%c", temp->character);
+            temp = tree;
+        }
+    }
+    free_tree(tree);
+    fclose(decompressed);
 }
 
 node *build_tree(FILE *arq) {
@@ -80,6 +130,16 @@ node *build_tree(FILE *arq) {
     }
     sort_queue(q);
 
+    if (q->size == 1) {
+        node *n1 = dequeue(q);
+
+        node *n = new_node(0);
+        n->frequency = n1->frequency;
+        n->left = n1;
+        n->right = NULL;
+        enqueue(q, n);
+    }
+
     while (q->size != 1) {
         node *n1 = dequeue(q);
         node *n2 = dequeue(q);
@@ -96,52 +156,99 @@ node *build_tree(FILE *arq) {
 
     node *tree = dequeue(q);
     free_queue(q);
+
+    fseek(arq, 0, SEEK_SET);
     
     return tree;
 }
 
-void serialize_tree(node *root) {
-    if (root->left == NULL && root->right == NULL) {
-        printf("L");
-        printf("%c%d", root->character, root->frequency);
+void load_table(char *table[], node *root, char *currentCode) {
+    if (root == NULL)
+        return;
+
+    if (root->right == NULL && root->left == NULL) {
+        table[root->character] = malloc(strlen(currentCode) + 1);
+        strcpy(table[root->character], currentCode);
         return;
     }
-    printf("I");
-    printf("%d", root->frequency);
-    serialize_tree(root->left);
-    serialize_tree(root->right);
+
+    char leftCode[8], rightCode[8];
+    strcpy(leftCode, currentCode);
+    strcpy(rightCode, currentCode);
+    strcat(leftCode, "0");
+    strcat(rightCode, "1");
+
+    load_table(table, root->left, leftCode);
+    load_table(table, root->right, rightCode);
 }
 
-node *deserialize_tree(const char* serial, int* index) {
-    if (serial[*index] == '\0')
-        return NULL;
+void serialize_tree(node *root, FILE *output) {
+    serialize(root, output);
+    nodeInfo ni;
+    ni.character = 0;
+    ni.frequency = 0;
+    ni.type = 'E';
+    fwrite(&ni, sizeof(nodeInfo), 1, output);
+}
 
-    node *n = new_node(0);
-    if (n == NULL) {
-        printf("error allocating memory");
-        return NULL;
+void serialize(node *root, FILE *output) {
+    if (root == NULL)
+        return;
+
+    nodeInfo n;
+
+    if (root->left == NULL && root->right == NULL) {
+        n.type = 'L';
+        n.character = root->character;
+        n.frequency = root->frequency;
+        fwrite(&n, sizeof(nodeInfo), 1, output);
+        return;
     }
 
-    if (serial[*index] == 'I') {
-        (*index)++;
-        sscanf(&serial[*index], "%d", &n->frequency);
-        while(serial[*index] != 'L' && serial[*index] != 'I') {
-            (*index)++;
+    n.type = 'I';
+    n.character = 0;
+    n.frequency = root->frequency;
+    fwrite(&n, sizeof(nodeInfo), 1, output);
+
+    serialize(root->left, output);
+    serialize(root->right, output);
+}
+
+node *deserialize_tree(FILE *arq) {
+    int end = 0;
+    return deserialize(arq, &end);
+}
+
+node *deserialize(FILE *arq, int *end) {
+    nodeInfo ni;
+    if (!(*end) && fread(&ni, sizeof(nodeInfo), 1, arq) == 1) {
+
+        if (ni.type == 'E') {
+            end++;
+            return NULL;
         }
-        n->left = deserialize_tree(serial, index);
-        n->right = deserialize_tree(serial, index);
-    } else if (serial[*index] == 'L') {
-        (*index)++;
-        n->character = serial[*index];
-        (*index)++;
-        sscanf(&serial[*index], "%d", &n->frequency);
-        while(serial[*index] != 'L' && serial[*index] != 'I' && serial[*index] != '\0') {
-            (*index)++;
+
+        node *n = (node*) malloc(sizeof(node));
+        if (n == NULL) {
+            printf("error allocating memory\n");
+            return NULL;
         }
-        n->left = NULL;
-        n->right = NULL;
+    
+        if (ni.type == 'L') {
+            n->character = ni.character;
+            n->frequency = ni.frequency;
+            n->left = NULL;
+            n->right = NULL;
+        }
+        else if (ni.type == 'I') {
+            n->character = 0;
+            n->frequency = ni.frequency;
+            n->left = deserialize(arq, end);
+            n->right = deserialize(arq, end);
+        }
+        return n;
     }
-    return n;
+    return NULL;
 }
 
 void free_frequencies(node *arr[], int length) {

@@ -10,18 +10,6 @@ This project implements the Huffman Algorithm, a popular method for lossless dat
 
 3. **Generating Codewords**: The Huffman Tree is used to generate unique binary codewords for each character.
 
-4. **Example**:
-   - Input Text: "aaaaaabbbc"
-   - Character Frequencies: (a->6), (b->3), (c->1)
-   - Huffman Tree:
-     ```
-           (a->6)
-        ( ->10)
-              (b->3)
-           ( ->4)
-              (c->1)
-     ```
-
 ## How to Use
 
 1. Clone this repository to your local machine.
@@ -31,9 +19,7 @@ This project implements the Huffman Algorithm, a popular method for lossless dat
 ./huffman file_name_without_extension
 ```
 
-The program will analyze the text file, create the Huffman Tree, and display the results, including the character frequencies and their corresponding binary codewords.
-
-Soon it will actually compacts a file!
+The program will analyze the text file, compress it into another file with the encoded text, and can decompress the same compressed file into another txt file with the same text as the original. 
 
 ## Author
 
