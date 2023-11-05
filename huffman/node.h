@@ -12,5 +12,6 @@ node;
 node *new_node(char character);
 void print_tree(node *root, int level);
 void free_tree(node *root);
+bool equals(node *root1, node *root2);
 
 #endif

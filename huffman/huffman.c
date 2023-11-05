@@ -23,7 +23,6 @@ int main(int argc, char* argv[]) {
     }
 
     FILE *arq = fopen(file_name, "r");
-
     if (arq == NULL) {
         printf("Error while opening the file");
         return -1;
@@ -31,7 +30,7 @@ int main(int argc, char* argv[]) {
 
     compress(arq, "output.bin");
 
-    FILE *compressed = fopen("output.bin", "r");
+    FILE *compressed = fopen("output.bin", "rb");
     if (compressed == NULL) {
         printf("error opening the file\n");
         return -1;
@@ -43,7 +42,7 @@ int main(int argc, char* argv[]) {
     fclose(arq);
 }
 
-void compress(FILE *arq, char *output) {
+void compress(FILE *input, char *output) {
     FILE *foutput = fopen(output, "wb");
 
     if (foutput == NULL) {
@@ -51,15 +50,33 @@ void compress(FILE *arq, char *output) {
         return;
     }
         
-    node *huffman_tree = build_tree(arq);
+    node *huffman_tree = build_tree(input);
     char *table[256] = {NULL};
 
     load_table(table, huffman_tree, "");
     serialize_tree(huffman_tree, foutput);
 
     char buffer[1];
-    while (fread(buffer, sizeof(char), 1, arq) == 1) {
-        fprintf(foutput, table[buffer[0]]);
+    unsigned char current_byte = 0;
+    int bit_position = 7;
+
+    while (fread(buffer, sizeof(char), 1, input) == 1) {
+        char *huffman_code = table[buffer[0]];
+        for (int i = 0; huffman_code[i]; i++) {
+            unsigned char bit = huffman_code[i] - '0';
+            current_byte |= (bit << bit_position);
+            bit_position--;
+
+            if (bit_position < 0) {
+                fwrite(&current_byte, sizeof(unsigned char), 1, foutput);
+                current_byte = 0;
+                bit_position = 7;
+            }
+        }
+    }
+
+    if (bit_position != 7) {
+        fwrite(&current_byte, sizeof(unsigned char), 1, foutput);
     }
 
     for (int i = 0; i < 256; i++)
@@ -69,8 +86,8 @@ void compress(FILE *arq, char *output) {
     fclose(foutput);
 }
 
-void decompress(FILE *arq, char* output) {
-    node *tree = deserialize_tree(arq);
+void decompress(FILE *input, char* output) {
+    node *tree = deserialize_tree(input);
 
     char file_name[100];
     if (snprintf(file_name, sizeof(file_name), "%s.txt", output) >= sizeof(file_name)) {
@@ -80,19 +97,25 @@ void decompress(FILE *arq, char* output) {
 
     FILE *decompressed = fopen(file_name, "w");
 
-    char buffer[1];
+    unsigned char buffer = 0;
+    int buffer_position = 0;
     node *temp = tree;
-    while(fread(buffer, sizeof(char), 1, arq) == 1) {
-        if (buffer[0] == '0')
-            temp = temp->left;
-        else if (buffer[0] == '1')
-            temp = temp->right;
 
-        if (temp->left == NULL && temp->right == NULL) {
-            fprintf(decompressed, "%c", temp->character);
-            temp = tree;
+    while (fread(&buffer, sizeof(unsigned char), 1, input) == 1) {
+        for (int i = 7; i >= 0; i--) {
+            unsigned char bit = (buffer >> i) & 1; // Extract one bit
+            if (bit == 0)
+                temp = temp->left;
+            else if (bit == 1)
+                temp = temp->right;
+
+            if (temp->left == NULL && temp->right == NULL) {
+                fprintf(decompressed, "%c", temp->character);
+                temp = tree;
+            }
         }
     }
+
     free_tree(tree);
     fclose(decompressed);
 }
@@ -110,7 +133,10 @@ node *build_tree(FILE *arq) {
             node *n = new_node(character);
 
             if (n == NULL) {
-                free_frequencies(frequencies, 256);
+                for (int i = 0; i < 256; i++) {
+                    if (frequencies[i] != NULL)
+                        free(frequencies[i]);
+                }
                 return false;
             }
 
@@ -132,11 +158,13 @@ node *build_tree(FILE *arq) {
 
     if (q->size == 1) {
         node *n1 = dequeue(q);
+        node *n2 = new_node(0);
+        n2->frequency = 0;
 
         node *n = new_node(0);
         n->frequency = n1->frequency;
         n->left = n1;
-        n->right = NULL;
+        n->right = n2;
         enqueue(q, n);
     }
 
@@ -172,7 +200,7 @@ void load_table(char *table[], node *root, char *currentCode) {
         return;
     }
 
-    char leftCode[8], rightCode[8];
+    char leftCode[256], rightCode[256];
     strcpy(leftCode, currentCode);
     strcpy(rightCode, currentCode);
     strcat(leftCode, "0");
@@ -184,11 +212,6 @@ void load_table(char *table[], node *root, char *currentCode) {
 
 void serialize_tree(node *root, FILE *output) {
     serialize(root, output);
-    nodeInfo ni;
-    ni.character = 0;
-    ni.frequency = 0;
-    ni.type = 'E';
-    fwrite(&ni, sizeof(nodeInfo), 1, output);
 }
 
 void serialize(node *root, FILE *output) {
@@ -215,19 +238,8 @@ void serialize(node *root, FILE *output) {
 }
 
 node *deserialize_tree(FILE *arq) {
-    int end = 0;
-    return deserialize(arq, &end);
-}
-
-node *deserialize(FILE *arq, int *end) {
     nodeInfo ni;
-    if (!(*end) && fread(&ni, sizeof(nodeInfo), 1, arq) == 1) {
-
-        if (ni.type == 'E') {
-            end++;
-            return NULL;
-        }
-
+    if (fread(&ni, sizeof(nodeInfo), 1, arq) == 1) {
         node *n = (node*) malloc(sizeof(node));
         if (n == NULL) {
             printf("error allocating memory\n");
@@ -243,15 +255,10 @@ node *deserialize(FILE *arq, int *end) {
         else if (ni.type == 'I') {
             n->character = 0;
             n->frequency = ni.frequency;
-            n->left = deserialize(arq, end);
-            n->right = deserialize(arq, end);
+            n->left = deserialize_tree(arq);
+            n->right = deserialize_tree(arq);
         }
         return n;
     }
     return NULL;
-}
-
-void free_frequencies(node *arr[], int length) {
-    for (int i = 0; i < length; i++)
-        free(arr[i]);
 }
