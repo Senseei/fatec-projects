@@ -10,6 +10,3 @@ It is more my initiative and other collegue's as well
 
 ## Who can colaborate with it?
 Anyone who want to give a nice idea of code
-
-## How to see the projects?
-It is simple! Just switch the branch to the project you would like to see :)
