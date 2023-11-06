@@ -1,5 +1,3 @@
-package fatec.java.numeric_converter;
-
 public class Binary {
 
     public static final int BASE = 2;

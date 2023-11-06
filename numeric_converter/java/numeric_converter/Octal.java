@@ -1,11 +1,10 @@
-package fatec.java.numeric_converter;
-
 public class Octal {
-    
+
     public static final int BITS = 3;
     public static final int BASE = 8;
 
-    private Octal() {}
+    private Octal() {
+    }
 
     public static String toBinary(long octal) {
         return toBinary(Long.toString(octal));

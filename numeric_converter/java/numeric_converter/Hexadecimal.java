@@ -1,11 +1,10 @@
-package fatec.java.numeric_converter;
-
 public class Hexadecimal {
-    
+
     public static final int BITS = 4;
     public static final int BASE = 16;
 
-    private Hexadecimal() {}
+    private Hexadecimal() {
+    }
 
     public static String toBinary(String hexadecimal) {
 

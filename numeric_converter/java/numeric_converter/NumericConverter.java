@@ -1,5 +1,3 @@
-package fatec.java.numeric_converter;
-
 import java.util.function.Consumer;
 
 public class NumericConverter {

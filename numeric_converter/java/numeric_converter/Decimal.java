@@ -1,10 +1,9 @@
-package fatec.java.numeric_converter;
-
 public class Decimal {
-    
+
     public static final int BASE = 10;
 
-    private Decimal() {}
+    private Decimal() {
+    }
 
     public static String toBinary(long decimal) {
 
