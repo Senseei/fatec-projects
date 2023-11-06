@@ -1,0 +1,17 @@
+Huffman coding is a data compression algorithm that assigns variable-length codes to different input symbols based on their frequencies. It is a widely used technique for lossless data compression, often employed in file compression formats like ZIP and JPEG.
+
+The core idea of Huffman coding is to assign shorter codes to more frequent symbols and longer codes to less frequent symbols. This way, you can represent common symbols with fewer bits, reducing the overall size of the data. This is achieved by constructing a binary tree, known as the Huffman tree, where each leaf node corresponds to a symbol, and the path from the root to the leaf node represents the code for that symbol.
+
+For example, the English language has more frequent usage of certain letters like 'E' and 'T' compared to less frequent letters like 'Z' and 'Q.' Huffman coding takes advantage of these frequency differences to achieve efficient compression. 'E' and 'T' might get shorter codes, while 'Z' and 'Q' would receive longer codes.
+
+Here is a short example of Huffman codes for a few letters:
+- 'E': 0
+- 'T': 10
+- 'A': 110
+- 'Z': 1110
+- 'Q': 1111
+
+When encoding a message, you replace each symbol with its corresponding Huffman code. Decoding is the reverse process, where you start at the root of the Huffman tree and follow the path to reach the leaf node, which represents the original symbol.
+
+Huffman coding is a practical and efficient way to achieve data compression in various applications, from text files to image and video compression. Understanding this coding technique can be valuable for developers and anyone working with data compression algorithms.
+r
